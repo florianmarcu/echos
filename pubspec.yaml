@@ -1,0 +1,46 @@
+name: echos
+description: A new Flutter project.
+
+
+publish_to: 'none' 
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.16.0 <3.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  authentication:
+    path: ./packages/authentication
+  cupertino_icons:
+  firebase_core:
+  cloud_firestore:
+  provider:  
+  shared_preferences:
+  local_auth:
+  flutter_blue:
+  country_icons:
+  country_codes: 
+  country_list:
+  pinput:
+    
+# dependency_overrides:
+#   firebase_core_platform_interface: 4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^1.0.0
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/icons/alert.png
+
+
+  fonts:
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-Regular.ttf

@@ -1,0 +1,193 @@
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:google_sign_in/google_sign_in.dart';
+export 'package:firebase_auth/firebase_auth.dart';
+export 'user.dart';
+
+/// A singleton class that handles the entire authentication process of the app
+class Authentication{
+  static final FirebaseAuth auth = FirebaseAuth.instance;
+  static final FirebaseFirestore _db = FirebaseFirestore.instance;
+  static User? currentUser;
+
+  /// Auth state of the app as a stream
+  static Stream<User?> get user{
+    
+    return auth.authStateChanges();
+  }
+
+  /// Creates a new user document in the Firestore for a new signed up user
+  static void updateUserData(User user, [String? credentialProvider]) async{
+    DocumentReference ref = _db.collection('users').doc(user.uid);
+    DocumentSnapshot doc = await ref.get();
+    //await _saveDeviceToken(user.uid);
+    if(doc.data() == null){
+      ref.set({
+        'phone_number': user.phoneNumber,
+        'uid' : user.uid,
+        'email' : user.email,
+        'photoURL' : user.photoURL,
+        'display_name' : user.displayName,
+        'date_registered': FieldValue.serverTimestamp(),
+        'provider': credentialProvider
+        },
+        SetOptions(merge: true)
+      );
+    }
+  }
+  
+  static Future signInAnonimously() async{
+    try{
+      UserCredential result = await auth.signInAnonymously();
+      return result;
+    }
+    catch(error){
+      print(error);
+      return error;
+    }
+  }
+
+  static Future<void> verifyPhoneNumber(String phoneNumber, dynamic context, dynamic registerPageProvider) async{
+    print(phoneNumber);
+    await auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber, 
+        verificationCompleted: (PhoneAuthCredential credential) {
+          registerPageProvider.updateVerificationId(credential.verificationId);
+          registerPageProvider.updateSmsCode(credential.smsCode);
+        }, 
+        verificationFailed: (FirebaseAuthException e) {registerPageProvider.handleError(context, e.code);}, 
+        codeSent: (String verificationId, int? resendToken){
+          registerPageProvider.updateVerificationId(verificationId);
+        }, 
+        codeAutoRetrievalTimeout: (String verificationId) {
+          print('code auto retrieval failed');
+        },
+        timeout: Duration(seconds: 30)
+      );
+  }
+  
+  // Sign in with Google
+  // static Future signInWithGoogle() async{
+  //   try{
+  //     var googleSignIn = GoogleSignIn();  
+  //     await googleSignIn.signOut();
+  //     final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+  //     final GoogleSignInAuthentication googleAuth = await googleUser!.authentication;
+  //     final AuthCredential credential = GoogleAuthProvider.credential(
+  //       idToken: googleAuth.idToken, 
+  //       accessToken: googleAuth.accessToken
+  //     );
+  //     UserCredential result = await auth.signInWithCredential(credential);
+  //     if(result.user != null)
+  //       updateUserData(result.user!,'email_and_password');
+  //     return result;
+  //   }
+  //   catch(error){
+  //     print(error);
+  //     return error;
+  //   }
+  // }
+
+  // // Sign in with Facebook
+  // static Future signInWithFacebook() async{
+  //   try{
+  //     final LoginResult facebookLoginResult = await FacebookAuth.instance.login(
+  //       permissions: ['email', 'public_profile'],
+  //     );
+  //     final AuthCredential credential = FacebookAuthProvider.credential(
+  //       facebookLoginResult.accessToken!.token
+  //     );
+  //     UserCredential result = await auth.signInWithCredential(credential);
+  //     if(result.user != null)
+  //       updateUserData(result.user!,'facebook');
+  //     return result;
+  //   }
+  //   catch(error){
+  //     print(error);
+  //     return error;
+  //   }
+  // }
+
+  // Sign in by email and password
+  static Future signInWithEmailAndPassword(String email, String password) async{
+    try{
+      UserCredential result = await auth.signInWithEmailAndPassword(email: email, password: password);
+      return result;
+    }
+    catch(error){
+      print(error);
+      return error;
+    }
+  }
+
+  /// Register with email and password
+  static Future registerWithEmailAndPassword(String name, String email, String password) async{
+    try{
+      UserCredential result = await auth.createUserWithEmailAndPassword(email: email, password: password);
+      if(result.user != null){
+        await auth.currentUser!.updateDisplayName(name);
+        updateUserData(result.user!,'email_and_password');
+      }
+      return result;
+    }
+    catch(error){
+      return error;
+    }
+  }
+
+  static Future signUpWithEmailAndPasswordAndLinkWithPhoneNumber(String name, String email, String password) async{
+    try{
+      AuthCredential credential = EmailAuthProvider.credential(email: email, password: password);
+      UserCredential result = await Authentication.auth.currentUser!.linkWithCredential(credential);
+      if(result.user != null){
+        await auth.currentUser!.updateDisplayName(name);
+        updateUserData(result.user!, 'email_and_password');
+      }
+    }
+    catch(error){
+      return error;
+    }
+  }
+
+  /// Sign out
+  static Future signOut() async{
+    try{
+      await auth.signOut();
+    }
+    catch(error){
+      return(error);
+    }
+  }
+
+  static Future<void> updateProfileImage(String path) async{
+    try{
+      var ref = FirebaseStorage.instance.ref().child("users/${auth.currentUser!.uid}/profile.jpg");
+      await ref.putFile(File(path));
+      await auth.currentUser!.updatePhotoURL(await ref.getDownloadURL());
+    } 
+    catch(error){
+
+    }
+  }
+  static Future<void> updateUserPhoneNumber(String phoneNumber) async{
+    await FirebaseFirestore.instance.collection("users").doc(FirebaseAuth.instance.currentUser!.uid).set(
+      {
+        "contact_phone_number": phoneNumber
+      },
+      SetOptions(merge: true)
+    );
+  }
+
+  Authentication._init(){
+    user.listen((user) {
+      currentUser = user;
+      print(currentUser!.uid);
+    });
+  }
+  static final Authentication _instance = Authentication._init();
+  factory Authentication() => _instance;
+
+}
