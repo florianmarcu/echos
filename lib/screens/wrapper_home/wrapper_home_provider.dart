@@ -1,14 +1,22 @@
 import 'package:authentication/authentication.dart';
+import 'package:echos/screens/community/community_page.dart';
+import 'package:echos/screens/community/community_provider.dart';
+import 'package:echos/screens/devices/devices_page.dart';
+import 'package:echos/screens/devices/devices_provider.dart';
+import 'package:echos/screens/home/home_page.dart';
 import 'package:echos/screens/home/home_provider.dart';
-import 'package:echos/screens/wrapper_home/wrapper_home_provider.dart';
-import 'package:echos/utils/utils.dart';
+import 'package:echos/screens/settings/settings_page.dart';
+import 'package:echos/screens/settings/settings_provider.dart';
+import 'package:echos/screens/shop/shop_page.dart';
+import 'package:echos/screens/shop/shop_provider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:tuple/tuple.dart';
 export 'package:provider/provider.dart';
 
 class WrapperHomePageProvider with ChangeNotifier{
   BuildContext context;
-  int selectedScreenIndex = 0;
+  int selectedScreenIndex = 2;
   UserProfile? currentUser; 
   bool isLoading = false;
   List<Widget> screens = [];
@@ -16,32 +24,53 @@ class WrapperHomePageProvider with ChangeNotifier{
 
   PageController pageController = PageController();
 
-
-  List<BottomNavigationBarItem> screenLabels = <BottomNavigationBarItem>[
-    BottomNavigationBarItem(
-      label: "Acasă",
-      icon: Icon(Icons.home)
-    ),
-    BottomNavigationBarItem(
-      label: "Bilete",
-      icon: Padding(
-        padding: const EdgeInsets.only(bottom: 5.0),
-        child: Image.asset(localAsset("ticket"),width: 25, color: Color(0xFF222831),)
-      ),
-      activeIcon: Padding(
-        padding: const EdgeInsets.only(bottom: 5.0),
-        child: Image.asset(localAsset("ticket"),width: 25, color: Color(0xFFD65A31))
-      )
-    ),
-    BottomNavigationBarItem(
-      label: "Profil",
-      icon: Icon(Icons.person)
-    ),
+  List screenProviders = [
+    DevicesPageProvider(),
+    CommunityPageProvider(),
+    HomePageProvider(),
+    ShopPageProvider(),
+    SettingsPageProvider()
   ];
+
+  List<Tuple2<IconData?, String>?> screenIcons = <Tuple2<IconData?, String>?>[
+    Tuple2(Icons.bluetooth_audio_outlined, "My Devices"),
+    Tuple2(Icons.people, "Community"),
+    null,
+    Tuple2(Icons.shopping_cart, "Shop"),
+    Tuple2(Icons.settings, "Settings")
+  ];
+
+  IconData centralIcon = Icons.home;
+ 
+  // List<BottomNavigationBarItem> screenLabels = <BottomNavigationBarItem>[
+  //   BottomNavigationBarItem(
+  //     label: "Devices",
+  //     icon: Icon(Icons.home)
+  //   ),
+  //   BottomNavigationBarItem(
+  //     label: "Community",
+  //     icon: Icon(Icons.people)
+  //   ),
+  //   BottomNavigationBarItem(
+  //     label: "Home",
+  //     icon: Icon(Icons.person)
+  //   ),
+  //   BottomNavigationBarItem(
+  //     label: "Shop",
+  //     icon: Icon(Icons.person)
+  //   ),
+  //   BottomNavigationBarItem(
+  //     label: "Settings",
+  //     icon: Icon(Icons.person)
+  //   ),
+  // ];
 
   WrapperHomePageProvider(this.context){
     getData(context);
   }
+
+  /// Returns the provider of the specific screen
+  providerOf(int index) => screenProviders[index];
 
   void rebuildTicketPageProvider(){
     // if(pageController.page == 3){ /// Workaround that solves the TicketPageProvider being disposed upon popping the Payment Page
@@ -58,28 +87,46 @@ class WrapperHomePageProvider with ChangeNotifier{
 
     currentUser = await userToUserProfile(context.read<User?>());
 
-    HomePageProvider homePageProvider = HomePageProvider();
 
+    // screenIcons = <IconData>[
+    //   Icons.bluetooth_audio_outlined,
+    //   Icons.people,
+    //   Icons.home,
+    //   Icons.shop,
+    //   Icons.settings
+    // ];
     
     screens = <Widget>[
-      // ChangeNotifierProvider<HomePageProvider>.value(  /// First screen - contains departure, arrival and date searching criteria
-      //   value: homePageProvider,
-      //   builder: (context, _) {
-      //     return HomePage();
-      //   }
-      // ), 
-      // ChangeNotifierProvider<TicketsPageProvider>(
-      //   create: (context) => TicketsPageProvider(),
-      //   builder: (context, _) {
-      //     return TicketsPage();
-      //   }
-      // ),
-      // ChangeNotifierProvider<ProfilePageProvider>(
-      //   create: (context) => ProfilePageProvider(),
-      //   builder: (context, _) {
-      //     return ProfilePage();
-      //   }
-      // ),
+      ChangeNotifierProvider<DevicesPageProvider>.value(  /// First screen - contains departure, arrival and date searching criteria
+        value: screenProviders[0],
+        builder: (context, _) {
+          return DevicesPage();
+        }
+      ), 
+      ChangeNotifierProvider<CommunityPageProvider>.value(
+        value: screenProviders[1],
+        builder: (context, _) {
+          return CommunityPage();
+        }
+      ),
+      ChangeNotifierProvider<HomePageProvider>.value(
+        value: screenProviders[2],
+        builder: (context, _) {
+          return HomePage();
+        }
+      ),
+      ChangeNotifierProvider<ShopPageProvider>.value(
+        value: screenProviders[3],
+        builder: (context, _) {
+          return ShopPage();
+        }
+      ),
+      ChangeNotifierProvider<SettingsPageProvider>.value(
+        value: screenProviders[4],
+        builder: (context, _) {
+          return SettingsPage();
+        }
+      ),
     ];
 
     _loading();

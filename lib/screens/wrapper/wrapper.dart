@@ -53,8 +53,8 @@ class Wrapper extends StatelessWidget {
                 return snapshot.data!.getBool("welcome") != null
                     ? (
                       ChangeNotifierProvider(
-                      create: (context) => DevicesPageProvider(),
-                      child: DevicesPage()
+                      create: (context) => RegisterPageProvider(),
+                      child: RegisterPhonePage()
                     ))
                     // ? (
                     //   ChangeNotifierProvider(
@@ -70,8 +70,8 @@ class Wrapper extends StatelessWidget {
                     );
               } else {
                 return ChangeNotifierProvider(
-                  create: (context) => AuthenticationPageProvider(),
-                  child: AuthenticationPage()
+                  create: (context) => RegisterPageProvider(),
+                  child: RegisterPhonePage()
                 );
               }
           }

@@ -65,6 +65,7 @@ flutter {
 }
 
 dependencies {
+    implementation 'com.kkmcn.kbeaconlib2:kbeaconlib2:1.1.7'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation platform('com.google.firebase:firebase-bom:30.2.0')
     implementation 'com.google.firebase:firebase-auth'

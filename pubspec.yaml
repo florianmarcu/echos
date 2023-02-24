@@ -12,17 +12,26 @@ dependencies:
     sdk: flutter
   authentication:
     path: ./packages/authentication
+  kbeacon:
+    path: ../kbeacon
   cupertino_icons:
   firebase_core:
   cloud_firestore:
   provider:  
-  shared_preferences:
   local_auth:
   flutter_blue:
   country_icons:
   country_codes: 
   country_list:
   pinput:
+  convex_bottom_bar:
+  flutter_reactive_ble:
+  flutter_background_service:
+  device_info_plus:
+  shared_preferences:
+  shared_preferences_android:
+  shared_preferences_ios:
+  tuple:
     
 # dependency_overrides:
 #   firebase_core_platform_interface: 4.5.1

@@ -7,12 +7,12 @@ class AppDrawer extends StatelessWidget {
     return Drawer(
       child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text("${Authentication.auth.currentUser!.displayName}"),
-            accountEmail: Text("${Authentication.auth.currentUser!.email}"),
-            // accountName: Text(Authentication.auth.currentUser!.displayName!), 
-            // accountEmail: Text(Authentication.auth.currentUser!.email!)
-          ),
+          // UserAccountsDrawerHeader(
+          //   accountName: Text("${Authentication.auth.currentUser!.displayName}"),
+          //   accountEmail: Text("${Authentication.auth.currentUser!.email}"),
+          //   // accountName: Text(Authentication.auth.currentUser!.displayName!), 
+          //   // accountEmail: Text(Authentication.auth.currentUser!.email!)
+          // ),
           Spacer(),
           TextButton(
             onPressed: () => Authentication.signOut(),
