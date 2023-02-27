@@ -277,9 +277,9 @@ AppBarTheme _appBarTheme = AppBarTheme(
   elevation: 0,
   backgroundColor: Colors.transparent,
   titleTextStyle: TextStyle(
-    color: _primaryColor,
-    fontSize: 25*(1/textScaleFactor),
-    fontWeight: FontWeight.bold,  
+    color: _tertiaryColor,
+    fontSize: 23*(1/textScaleFactor),
+    fontWeight: FontWeight.bold
     //fontFamily: 'Raleway'
   )
 );

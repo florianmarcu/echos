@@ -30,6 +30,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Added for Google Maps -->
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyBlVrmvR0vF_GFjj9ITyE5XUrgNZXQPV14"/>
     </application>
     <!-- Added for flutter_reactive_ble -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />

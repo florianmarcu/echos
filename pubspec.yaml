@@ -28,10 +28,12 @@ dependencies:
   flutter_reactive_ble:
   flutter_background_service:
   device_info_plus:
-  shared_preferences:
+  shared_preferences: ^2.0.18
   shared_preferences_android:
   shared_preferences_ios:
+  shared_preferences_web:
   tuple:
+  google_maps_flutter:
     
 # dependency_overrides:
 #   firebase_core_platform_interface: 4.5.1
@@ -39,7 +41,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^1.0.0
+  flutter_lints: ^2.0.1
 
 flutter:
   uses-material-design: true

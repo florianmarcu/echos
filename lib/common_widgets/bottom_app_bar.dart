@@ -8,35 +8,49 @@ class CustomBottomAppBar extends StatelessWidget {
     var provider = context.watch<WrapperHomePageProvider>();
     return BottomAppBar(
       shape: AutomaticNotchedShape(RoundedRectangleBorder(borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)))),
-      height: 80,
+      height: 90,
       color: Theme.of(context).colorScheme.tertiary,
       child: Row(
         // crossAxisAlignment: CrossAxisAlignment.end,
         mainAxisAlignment: MainAxisAlignment.center,
         children: provider.screenIcons.map((iconData) => Expanded(
           child: iconData != null 
-          ? IconButton(
-            padding: EdgeInsets.zero,
-            icon: Column(
-              children: [
-                Icon(
-                  iconData.item1, 
-                  color: provider.screenIcons.indexOf(iconData) == provider.selectedScreenIndex
-                  ? Theme.of(context).primaryColor
-                  : Theme.of(context).canvasColor,
-                ),
-                SizedBox(height: 5),
-                Text(
-                  iconData.item2,
-                  style: Theme.of(context).textTheme.labelSmall!.copyWith(
+          ? Container(
+            height: 60,
+            child: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Column(
+                children: [
+                  Icon(
+                    iconData.item1, 
                     color: provider.screenIcons.indexOf(iconData) == provider.selectedScreenIndex
                     ? Theme.of(context).primaryColor
                     : Theme.of(context).canvasColor,
                   ),
-                )
-              ],
+                  SizedBox(height: 5),
+                  Text(
+                    iconData.item2,
+                    style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      color: provider.screenIcons.indexOf(iconData) == provider.selectedScreenIndex
+                      ? Theme.of(context).primaryColor
+                      : Theme.of(context).canvasColor,
+                    ),
+                  ),
+                  provider.screenIcons.indexOf(iconData) == provider.selectedScreenIndex
+                  ? Column(
+                    children: [
+                      SizedBox(height: 5,),
+                      CircleAvatar(
+                        radius: 2,
+                        backgroundColor: Theme.of(context).primaryColor,
+                      )
+                    ]
+                  )
+                  : Container()
+                ],
+              ),
+              onPressed: () => provider.updateSelectedScreenIndex(provider.screenIcons.indexOf(iconData)),
             ),
-            onPressed: () => provider.updateSelectedScreenIndex(provider.screenIcons.indexOf(iconData)),
           )
           : Container(),
         )).toList()

@@ -25,7 +25,7 @@ class Main extends StatelessWidget {
             if(prevUser == null && newUser != null && (newUser.email == null || newUser.email == ""))
               return false;
             return true;
-          },  
+          },
           value: Authentication.user, 
           initialData: null
         )

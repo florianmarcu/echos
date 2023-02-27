@@ -1,16 +1,14 @@
-import 'dart:math';
-
+import 'package:echos/screens/configure_device/configure_device_page.dart';
+import 'package:echos/screens/configure_device/configure_device_provider.dart';
 import 'package:echos/screens/search_device/search_device_page.dart';
-
+import 'package:echos/screens/wrapper_home/wrapper_home_provider.dart';
 import 'devices_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-
-import 'components/widgets.dart';
 
 class DevicesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    var wrapperHomePageProvider = context.watch<WrapperHomePageProvider>();
     var provider = context.watch<DevicesPageProvider>();
     return Scaffold(
       appBar: AppBar(
@@ -18,7 +16,7 @@ class DevicesPage extends StatelessWidget {
         toolbarHeight: 80,
         title: Padding(
           padding: const EdgeInsets.only(left: 20.0),
-          child: Text("Devices"),
+          child: Text("Devices", style: Theme.of(context).appBarTheme.titleTextStyle!.copyWith(color: Theme.of(context).colorScheme.tertiary),),
         ),
         actions: [
           Padding(
@@ -37,7 +35,7 @@ class DevicesPage extends StatelessWidget {
           runSpacing: 30,
           runAlignment: WrapAlignment.start,
           alignment: WrapAlignment.spaceEvenly,
-          children: buildChildren(context, provider)
+          children: buildChildren(context, provider, wrapperHomePageProvider)
         ),
       ),
     );
@@ -45,13 +43,13 @@ class DevicesPage extends StatelessWidget {
 
   /// Builds the 'Wrap' widget's children
   /// Tiles containing the connected devices
-  buildChildren(BuildContext context, DevicesPageProvider provider){
+  buildChildren(BuildContext context, DevicesPageProvider provider, WrapperHomePageProvider wrapperHomePageProvider){
     List<Widget> devices = [];
     if(provider.connectedDevices != [])
       devices = provider.connectedDevices.map((device) => GestureDetector(
         onTap: (){},
         child: Container(
-          padding: const EdgeInsets.only(top: 10.0),
+          padding: const EdgeInsets.only(top: 20.0),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(30),
             color: Theme.of(context).highlightColor,
@@ -64,9 +62,66 @@ class DevicesPage extends StatelessWidget {
               )
             ],
           ),
-          height: 200,
+          height: 210,
           width: MediaQuery.of(context).size.width*0.4,
-          child: Text(device.id.id, style: Theme.of(context).textTheme.headline6,),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(Icons.bluetooth_connected_rounded,),
+                  Text(device.name, style: Theme.of(context).textTheme.headline6,),
+                  Text("Connected", style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green),)
+                ],
+              ),
+              Column(
+                children: [
+                  Container(
+                    height: 40,
+                    decoration: BoxDecoration(
+                      //color: Colors.red.withOpacity(0.1),
+                      borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.red,),
+                        Flexible(child: Text("Requires configuration before usage", maxLines: 2, style: Theme.of(context).textTheme.caption!.copyWith(color: Colors.red, fontSize: 12),))
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeNotifierProvider<ConfigureDevicePageProvider>(
+                        create: (_) => ConfigureDevicePageProvider(device),
+                        child: ConfigureDevicePage(),
+                      )));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        color: Theme.of(context).primaryColor
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: Text("Configure", style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),)
+                          ),
+                          Expanded(
+                            flex: 1,
+                            child: Icon(Icons.add_circle_outline, color: Theme.of(context).canvasColor,)
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
       )).toList();
     devices.add(
@@ -85,7 +140,7 @@ class DevicesPage extends StatelessWidget {
               )
             ],
           ),
-          height: 200,
+          height: 210,
           width: MediaQuery.of(context).size.width*0.4,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
