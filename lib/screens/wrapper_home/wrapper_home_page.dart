@@ -10,6 +10,7 @@ class WrapperHomePage extends StatelessWidget {
     return Scaffold(
       drawer: AppDrawer(),
       floatingActionButton: FloatingActionButton(
+        heroTag: null,
         backgroundColor: Theme.of(context).primaryColor,
         onPressed: () => provider.updateSelectedScreenIndex(2),
         child: Icon(Icons.home, size: 35,),

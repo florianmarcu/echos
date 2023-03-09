@@ -33,11 +33,28 @@
         <!-- Added for Google Maps -->
         <meta-data android:name="com.google.android.geo.API_KEY"
                android:value="AIzaSyBlVrmvR0vF_GFjj9ITyE5XUrgNZXQPV14"/>
+        <!-- Added for auto start on boot -->
+        <receiver 
+            android:name=".BootBroadcastReceiver" 
+            android:enabled="true"
+            android:exported="false"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED">   
+            <intent-filter>   
+                <action android:name="android.intent.action.BOOT_COMPLETED" />  
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" /> 
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>   
+        </receiver>
     </application>
     <!-- Added for flutter_reactive_ble -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Added for background processing (suggested by Flic2) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
+
 
 </manifest>

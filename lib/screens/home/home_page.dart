@@ -1,15 +1,24 @@
 import 'package:authentication/authentication.dart';
+import 'package:echos/models/models.dart';
+import 'package:echos/screens/configure_device/configure_device_page.dart';
+import 'package:echos/screens/configure_device/configure_device_provider.dart';
+import 'package:echos/screens/device/device_page.dart';
+import 'package:echos/screens/device/device_provider.dart';
 import 'package:echos/screens/devices/devices_provider.dart';
 import 'package:echos/screens/search_device/search_device_page.dart';
 import 'package:echos/screens/wrapper_home/wrapper_home_provider.dart';
 import 'package:echos/utils/utils.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var wrapperHomePageProvider = context.watch<WrapperHomePageProvider>();
+    var devicesPageProvider = context.watch<DevicesPageProvider>();
+    var connectedDevices = devicesPageProvider.connectedDevices;
+    var pairedDevices = devicesPageProvider.pairedDevices;
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
@@ -36,7 +45,7 @@ class HomePage extends StatelessWidget {
               children: [
                 IconButton(
                   onPressed: (){},
-                  icon: Icon(Icons.notifications, size: 30),
+                  icon: Icon(Icons.notifications, size: 30, color: Theme.of(context).colorScheme.tertiary,),
                 ),
                 Positioned(
                   top: 12,
@@ -67,7 +76,7 @@ class HomePage extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.only(top: 10.0),
                     width: MediaQuery.of(context).size.width*0.4,
-                    height: 250,
+                    height: 270,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                       color: Theme.of(context).highlightColor,
@@ -85,46 +94,63 @@ class HomePage extends StatelessWidget {
                       children: [
                         Column(
                           children: [
-                            Row(
+                            Row(/// Devices 'Icon' and 'Title'
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
                                 Icon(Icons.bluetooth,),
                                 Text("Devices", style: Theme.of(context).textTheme.headline6!.copyWith(fontWeight: FontWeight.bold)),
                               ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 20),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4.0),
-                                    child: Icon(Icons.circle, size: 10, color: Colors.green),
+                            ListView.separated( /// Connected devices
+                              shrinkWrap: true,
+                              itemCount: pairedDevices.length,
+                              separatorBuilder: (_, index) => SizedBox(height: 0), 
+                              itemBuilder: (context, index){
+                                Device device = pairedDevices[index];
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric( vertical: 20),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      SizedBox(width: 10),
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4.0),
+                                        child: Icon(Icons.circle, size: 10, color: device.connected ? Colors.green : Colors.red),
+                                      ),
+                                      Column(
+                                        children: [
+                                          Text(
+                                            '"${device.name}"',
+                                          ),
+                                          Row(
+                                            children: [
+                                              Text(
+                                                device.connected ? "Connected" : "Disconnected", 
+                                                style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: device.connected ? Colors.green : Colors.red),),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(width: 10),
+                                      GestureDetector(
+                                        onTap: (){
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                            create: (_) => ConfigureDevicePageProvider(device),
+                                            child: ConfigureDevicePage(),
+                                          ))).then((_) => wrapperHomePageProvider.updateSelectedScreenIndex(0));
+                                        },
+                                        child: Container(
+                                          width: 20,
+                                          padding: const EdgeInsets.only(),
+                                          child: Icon(Icons.settings),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  SizedBox(width: 10),
-                                  Flexible(
-                                    child: Text(
-                                      '"KBeacon" is connected',
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 4.0),
-                                    child: GestureDetector(
-                                      onTap: (){
-                                        // Navigator.push(context, MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                        //   create: DevicePageProvider(device),
-                                        // )));
-                                      },
-                                      child: InkWell(
-                                        splashColor: Theme.of(context).canvasColor,
-                                        child: Icon(Icons.settings)
-                                      )
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                );
+                              }, 
                             ),
+                            
                           ],
                         ),
                         GestureDetector(
@@ -163,6 +189,9 @@ class HomePage extends StatelessWidget {
                 SizedBox(height: 30,),
                 /// Shop button
                 GestureDetector(
+                  onTap: (){
+                    wrapperHomePageProvider.updateSelectedScreenIndex(3);
+                  },
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 20),
                     alignment: Alignment.center,
@@ -201,7 +230,7 @@ class HomePage extends StatelessWidget {
                   },
                   child: Container(
                     width: MediaQuery.of(context).size.width*0.4,
-                    height: 180,
+                    height: 200,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(30),
                       color: Theme.of(context).highlightColor,
@@ -226,14 +255,20 @@ class HomePage extends StatelessWidget {
                               Text("Community", style: Theme.of(context).textTheme.headline6!.copyWith(fontWeight: FontWeight.bold)),
                             ],
                           ),
-                          Container(
-                            width: MediaQuery.of(context).size.width*0.4,
-                            height: 140,
-                            child: GoogleMap(
-                              mapToolbarEnabled: false,
-                              initialCameraPosition: CameraPosition(
-                                target: LatLng(24,24),
-                                zoom: 14
+                          AbsorbPointer(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(30), bottomRight: Radius.circular(30)),
+                              child: Container(
+                                width: MediaQuery.of(context).size.width*0.4,
+                                height: 140,
+                                child: GoogleMap(
+                                  zoomControlsEnabled: false,                  
+                                  mapToolbarEnabled: false,
+                                  initialCameraPosition: CameraPosition(
+                                    target: LatLng(44.42519351823793, 26.163671485388658),
+                                    zoom: 14
+                                  ),
+                                ),
                               ),
                             ),
                           )
@@ -270,7 +305,9 @@ class HomePage extends StatelessWidget {
                 SizedBox(height: 30),
                 ///Settings button
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    wrapperHomePageProvider.updateSelectedScreenIndex(4);
+                  },
                   child: Container(
                     width: MediaQuery.of(context).size.width*0.4,
                     height: 180,

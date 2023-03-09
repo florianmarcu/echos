@@ -23,7 +23,7 @@ class DevicesPage extends StatelessWidget {
             padding: const EdgeInsets.only(right: 15.0),
             child: IconButton(
               onPressed: (){},
-              icon: Icon(Icons.notifications_none, size: 30, color: Theme.of(context).colorScheme.tertiary,),
+              icon: Icon(Icons.notifications, size: 30, color: Theme.of(context).colorScheme.tertiary,),
             ),
           )
         ],
@@ -45,8 +45,8 @@ class DevicesPage extends StatelessWidget {
   /// Tiles containing the connected devices
   buildChildren(BuildContext context, DevicesPageProvider provider, WrapperHomePageProvider wrapperHomePageProvider){
     List<Widget> devices = [];
-    if(provider.connectedDevices != [])
-      devices = provider.connectedDevices.map((device) => GestureDetector(
+    if(provider.pairedDevices != [])
+      devices = provider.pairedDevices.map((device) => GestureDetector(
         onTap: (){},
         child: Container(
           padding: const EdgeInsets.only(top: 20.0),
@@ -72,13 +72,16 @@ class DevicesPage extends StatelessWidget {
                 children: [
                   Icon(Icons.bluetooth_connected_rounded,),
                   Text(device.name, style: Theme.of(context).textTheme.headline6,),
-                  Text("Connected", style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: Colors.green),)
+                  Text(device.connected ? "Connected" : "Disconnected", style: Theme.of(context).textTheme.bodyMedium!.copyWith(color: device.connected ? Colors.green : Colors.red),)
                 ],
               ),
               Column(
                 children: [
-                  Container(
-                    height: 40,
+                  device.isConfigured == true
+                  ? Container()
+                  : Container(
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    //height: 40,
                     decoration: BoxDecoration(
                       //color: Colors.red.withOpacity(0.1),
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))
@@ -86,7 +89,8 @@ class DevicesPage extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(Icons.info_outline, color: Colors.red,),
-                        Flexible(child: Text("Requires configuration before usage", maxLines: 2, style: Theme.of(context).textTheme.caption!.copyWith(color: Colors.red, fontSize: 12),))
+                        Flexible(
+                          child: Text("Requires configuration before usage", maxLines: 2, style: Theme.of(context).textTheme.caption!.copyWith(color: Colors.red, fontSize: 12),))
                       ],
                     ),
                   ),
@@ -107,12 +111,16 @@ class DevicesPage extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Expanded(
-                            flex: 2,
-                            child: Text("Configure", style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),)
+                            flex: 3,
+                            child: Text(
+                              "Configure", 
+                              style: Theme.of(context).textTheme.labelSmall!.copyWith(color: Theme.of(context).canvasColor, fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center,
+                            )
                           ),
                           Expanded(
                             flex: 1,
-                            child: Icon(Icons.add_circle_outline, color: Theme.of(context).canvasColor,)
+                            child: Icon(Icons.settings, color: Theme.of(context).canvasColor,)
                           )
                         ],
                       ),

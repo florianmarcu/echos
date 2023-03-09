@@ -34,6 +34,9 @@ dependencies:
   shared_preferences_web:
   tuple:
   google_maps_flutter:
+  image_picker:
+  auto_start_flutter:
+  url_launcher:
     
 # dependency_overrides:
 #   firebase_core_platform_interface: 4.5.1
@@ -49,6 +52,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/icons/alert.png
+    - assets/icons/sms.png
 
 
   fonts:

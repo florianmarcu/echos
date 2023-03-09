@@ -109,8 +109,15 @@ class WrapperHomePageProvider with ChangeNotifier{
           return CommunityPage();
         }
       ),
-      ChangeNotifierProvider<HomePageProvider>.value(
-        value: screenProviders[2],
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider<HomePageProvider>.value(
+            value: screenProviders[2],
+          ),
+          ChangeNotifierProvider<DevicesPageProvider>.value(
+            value: screenProviders[0],
+          ),
+        ],
         builder: (context, _) {
           return HomePage();
         }

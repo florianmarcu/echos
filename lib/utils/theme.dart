@@ -279,8 +279,8 @@ AppBarTheme _appBarTheme = AppBarTheme(
   titleTextStyle: TextStyle(
     color: _tertiaryColor,
     fontSize: 23*(1/textScaleFactor),
-    fontWeight: FontWeight.bold
-    //fontFamily: 'Raleway'
+    fontWeight: FontWeight.bold,
+    fontFamily: 'Poppins'
   )
 );
 
@@ -291,7 +291,7 @@ SnackBarThemeData _snackBarTheme = SnackBarThemeData(
   ),
   behavior: SnackBarBehavior.floating,
   contentTextStyle: TextStyle(
-    fontFamily: "Raleway"
+    fontFamily: "Poppins"
   )
 );
 

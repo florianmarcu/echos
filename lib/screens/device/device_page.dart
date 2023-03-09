@@ -8,7 +8,7 @@ class DevicePage extends StatelessWidget {
     var device = provider.device;
     return Scaffold(
       appBar: AppBar(
-        title: Text("${device.displayName}"),
+        title: Text("${device.name}"),
       ),
     );
   }
