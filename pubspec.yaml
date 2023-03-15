@@ -35,8 +35,11 @@ dependencies:
   tuple:
   google_maps_flutter:
   image_picker:
-  auto_start_flutter:
   url_launcher:
+  telephony:
+  permission_handler:
+  location:
+  # background_location:
     
 # dependency_overrides:
 #   firebase_core_platform_interface: 4.5.1
@@ -53,6 +56,10 @@ flutter:
   assets:
     - assets/icons/alert.png
     - assets/icons/sms.png
+    - assets/icons/welcome.png
+    - assets/icons/register.png
+    - assets/icons/connect-device.png
+    - assets/icons/configure-device.png
 
 
   fonts:
