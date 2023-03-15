@@ -6,6 +6,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 // import 'package:google_sign_in/google_sign_in.dart';
 export 'package:firebase_auth/firebase_auth.dart';
 export 'user.dart';
+import 'dart:async';
 
 /// A singleton class that handles the entire authentication process of the app
 class Authentication{
@@ -15,7 +16,6 @@ class Authentication{
 
   /// Auth state of the app as a stream
   static Stream<User?> get user{
-    
     return auth.authStateChanges();
   }
 
@@ -146,6 +146,7 @@ class Authentication{
         await auth.currentUser!.updateDisplayName(name);
         updateUserData(result.user!, 'email_and_password');
       }
+      return credential;
     }
     catch(error){
       return error;
