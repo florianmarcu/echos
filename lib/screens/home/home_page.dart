@@ -120,7 +120,7 @@ class HomePage extends StatelessWidget {
                                       Column(
                                         children: [
                                           Text(
-                                            '"${device.name}"',
+                                            '${device.name}',
                                           ),
                                           Row(
                                             children: [
