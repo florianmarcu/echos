@@ -16,7 +16,7 @@ class OnboardContent extends StatelessWidget {
         Spacer(),
         Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 30),
+            padding: const EdgeInsets.only(left: 10.0, right: 10, top: 30, bottom: 0),
             child: Image.asset(
               localAsset(image), 
               width: MediaQuery.of(context).size.width*0.6,
@@ -25,10 +25,10 @@ class OnboardContent extends StatelessWidget {
           ),
         ),
         Spacer(),
-        Text(title, style: Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).primaryColor)),
-        SizedBox(height: 30),
-        Text(content, style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.normal)),
-        Spacer()
+        Text(title, style: Theme.of(context).textTheme.headline3!.copyWith(color: Theme.of(context).primaryColor, fontWeight: FontWeight.bold)),
+        Spacer(),
+        Text(content, style: Theme.of(context).textTheme.headline5!.copyWith(color: Theme.of(context).primaryColor, fontSize: 17)),
+        //Spacer()
       ],
     );
   }

@@ -13,24 +13,29 @@ class OnboardingPageProvider with ChangeNotifier {
 
   var pages = [
     {
-      "image": "alert",
-      "title": "Bun venit",
-      "content": "Pas 1."
+      "image": "welcome",
+      "title": "Welcome to Echos!",
+      "content": "Let's start"
+    },
+    {
+      "image": "register",
+      "title": "Register",
+      "content": "First of all, sign up on our platform"
+    },
+    {
+      "image": "connect-device",
+      "title": "Connect a device",
+      "content": "Connect an Echos device to your phone"
+    },
+    {
+      "image": "configure-device",
+      "title": "Configure your Echos device",
+      "content": "Fill in the information required in order to use your Echos device",
     },
     {
       "image": "alert",
-      "title": "Pas 2",
-      "content": "Pas 2"
-    },
-    {
-      "image": "alert",
-      "title": "Pas 3",
-      "content": "Pas 3"
-    },
-    {
-      "image": "alert",
-      "title": "Pas 4",
-      "content": "Pas 4",
+      "title": "Done! From now, use Echos in any emergency situation",
+      "content": "After you have configured your device, you can use your Echos device to send emergency signals to your friends or family whenever you feel in danger",
     }
   ];
 }
