@@ -31,6 +31,7 @@ class CustomBottomAppBar extends StatelessWidget {
                   Text(
                     iconData.item2,
                     style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                      fontSize: 12*(1/MediaQuery.textScaleFactorOf(context)),
                       color: provider.screenIcons.indexOf(iconData) == provider.selectedScreenIndex
                       ? Theme.of(context).primaryColor
                       : Theme.of(context).canvasColor,

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_list/country_list.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'register_provider.dart';
 import 'register_user_data_form/register_user_data_form_page.dart';
 export 'package:provider/provider.dart';
@@ -106,19 +107,30 @@ class RegisterPageProvider with ChangeNotifier{
     if(userDataFormKey.currentState!.validate())
       try{
         var result = await Authentication.signUpWithEmailAndPasswordAndLinkWithPhoneNumber(selectedFullName!, selectedEmail!, selectedPassword!);
-        if(result != null){
+        if(result != null && result.runtimeType == FirebaseAuthException){
           throw result;
         }
-        else Navigator.pop(context);
+        else {
+          // Refresh current user
+          // if(Authentication.auth.currentUser != null && result.runtimeType == AuthCredential){
+          print("------------REAUTH--------------");
+            // await Authentication.signOut();
+          await Authentication.auth.currentUser!.reload();
+          // }
+          // if((await SharedPreferences.getInstance()).getBool('welcome') == true){
+            Navigator.pop(context);
+            Navigator.pop(context);
+          // }
+          // Navigator.pop(context);
+
+          }
       }
       on FirebaseAuthException
       catch(error){
         handleError(context, error.code);
+        _loading();
+        notifyListeners();
       }
-
-
-    _loading();
-    notifyListeners();
   }
 
   void tryToLogOut(BuildContext context){

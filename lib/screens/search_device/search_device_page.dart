@@ -100,9 +100,14 @@ class _SearchDevicePageState extends State<SearchDevicePage> with TickerProvider
                     if(!provider.isSearching)
                     /// Button with no animation (SEARCH IS OFF)
                       return GestureDetector(
-                        onTap: (){
+                        onTap: () async{
                           /// Start searching and animation
-                          provider.startScanning();
+                          if(!(await provider.startScanning())){
+                            ScaffoldMessenger.of(context).clearSnackBars();
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text("You need to allow location permissions from settings"),
+                            ));
+                          }
                           startAnimation();
                         },
                         child: Container(
@@ -166,36 +171,38 @@ class _SearchDevicePageState extends State<SearchDevicePage> with TickerProvider
                     title: Text(device.name, style: Theme.of(context).textTheme.headline6,),
                     subtitle: Text(device.id.id),
                     trailing: TextButton(
-                      onPressed: () async => provider.connect(context, device.id.id, device.name).then((value) => value
-                      ? Navigator.push(context, 
-                          PageRouteBuilder(
-                            transitionDuration: Duration(milliseconds: 500),
-                            transitionsBuilder: (context, animation, secAnimation, child){
-                              var _animation = CurvedAnimation(parent: animation, curve: Curves.easeIn);
-                              return SlideTransition(
-                                child: child,
-                                position: Tween<Offset>(
-                                  begin: Offset(1, 0),
-                                  end: Offset(0, 0)
-                                ).animate(_animation),
-                              );
-                            },
-                            pageBuilder: (context, animation, secAnimation) => ChangeNotifierProvider(
-                              create: (context) => ConfigureDevicePageProvider(
-                                bluetoothDeviceToDevice(
-                                  device.id.id, 
-                                  device, 
-                                  false, 
-                                  true, 
-                                  device.name, 
-                                  Device.emptyConfigurations
+                      onPressed: () async => provider.connect(context, device.id.id, device.name).then((value) async {
+                        if(value){
+                          Navigator.pushReplacement(context, 
+                              PageRouteBuilder(
+                                transitionDuration: Duration(milliseconds: 500),
+                                transitionsBuilder: (context, animation, secAnimation, child){
+                                  var _animation = CurvedAnimation(parent: animation, curve: Curves.easeIn);
+                                  return SlideTransition(
+                                    child: child,
+                                    position: Tween<Offset>(
+                                      begin: Offset(1, 0),
+                                      end: Offset(0, 0)
+                                    ).animate(_animation),
+                                  );
+                                },
+                                pageBuilder: (context, animation, secAnimation) => ChangeNotifierProvider(
+                                  create: (context) => ConfigureDevicePageProvider(
+                                    bluetoothDeviceToDevice(
+                                      device.id.id, 
+                                      device, 
+                                      false, 
+                                      true, 
+                                      device.name, 
+                                      Device.emptyConfigurations
+                                    )
+                                  ),
+                                  child: ConfigureDevicePage(),
                                 )
-                              ),
-                              child: ConfigureDevicePage(),
-                            )
-                          )
-                      )
-                      : null),
+                              )
+                          );
+                        }
+                      }),
                       child: Text("Connect") 
                     ),
                   )).toList(),

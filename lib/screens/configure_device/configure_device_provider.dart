@@ -1,3 +1,5 @@
+import 'package:authentication/authentication.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:country_list/country_list.dart';
 import 'package:echos/models/models.dart';
 import 'package:flutter/material.dart';
@@ -6,12 +8,16 @@ export 'package:provider/provider.dart';
 
 class ConfigureDevicePageProvider with ChangeNotifier{
   Device device;
-  Map<String, dynamic> currentButtonSettings = {};
-  Map<String, dynamic> newButtonSettings = {};
+  Map<String, dynamic> currentButtonSettings = Device.emptyConfigurations;
+  Map<String, dynamic> newButtonSettings = Device.emptyConfigurations;
   bool isLoading = false;
   Country? selectedSmsPhoneNumberCountry = Countries.list.first;
   bool haveSettingsChanged = false;
   GlobalKey<FormState> formKey = GlobalKey();
+
+  TextEditingController smsPhoneNumberTextFieldController = TextEditingController();
+  TextEditingController callPhoneNumberTextFieldController = TextEditingController();
+  TextEditingController emailTextFieldController = TextEditingController();
   
 
   ConfigureDevicePageProvider(this.device){
@@ -72,6 +78,9 @@ class ConfigureDevicePageProvider with ChangeNotifier{
     // };
 
     newButtonSettings = Map.from(currentButtonSettings);
+    callPhoneNumberTextFieldController.text = newButtonSettings['call_phone_number'];
+    smsPhoneNumberTextFieldController.text = newButtonSettings['sms_phone_number'];
+    emailTextFieldController.text = newButtonSettings['email'];
     print(newButtonSettings);
 
     notifyListeners();
@@ -116,11 +125,25 @@ class ConfigureDevicePageProvider with ChangeNotifier{
               break;
             }
             await sharedPreferences.setBool("paired_device_${i}_configured", true);
+            print(sharedPreferences.getBool("paired_device_${i}_configured"));
+            /// Update device's doc in Firestore
+            FirebaseFirestore.instance
+            .collection('users')
+            .doc(Authentication.auth.currentUser!.uid)
+            .collection('devices')
+            .doc(macAddress)
+            .set({
+              "configured": true
+            }, SetOptions(merge: true));
             await sharedPreferences.reload();
           }
         }
       }
     }
+
+    currentButtonSettings = Map.from(newButtonSettings);
+    checkIfSettingsHaveChanged();
+
     _loading();
     notifyListeners();
   }

@@ -6,7 +6,7 @@ class RegisterUserDataFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var provider = context.watch<RegisterPageProvider>();
     return Scaffold(
-      // resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         toolbarHeight: 70,
         leading: IconButton(

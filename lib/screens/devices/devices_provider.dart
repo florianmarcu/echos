@@ -1,13 +1,14 @@
 
 import 'package:authentication/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:country_list/country_list.dart';
 import 'package:echos/models/models.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:kbeacon/kbeacon.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 export 'package:provider/provider.dart';
 
 class DevicesPageProvider with ChangeNotifier{
@@ -26,6 +27,11 @@ class DevicesPageProvider with ChangeNotifier{
   }
 
   Future<bool> startScanning() async{
+
+    // var permissionGranted = await askLocationPermissions();
+    // // if(!permissionGranted)
+    //   return false;
+
     isSearching = true;
     discoveredDevices.clear();
     flutterBlue.scan().listen((scanResult) {
@@ -94,29 +100,119 @@ class DevicesPageProvider with ChangeNotifier{
       /// Device is connected
       await Future.delayed(Duration(milliseconds: 5000));
       await Kbeacon.enableButtonTrigger(macAddress);
-      Kbeacon.buttonClickEvents.listen((event) {
-        FirebaseFirestore.instance.collection('users').doc(Authentication.auth.currentUser!.uid).collection('logs').doc(Timestamp.now().toString()).set({
-          "date_created": FieldValue.serverTimestamp(),
-          "device_id": macAddress,
-        });
+
+      if(!checkDeviceAlreadyPaired(macAddress)){
+        /// Register the newly connected device into Firestore
+        FirebaseFirestore.instance
+        .collection('users')
+        .doc(Authentication.auth.currentUser!.uid)
+        .collection('devices')
+        .doc(macAddress)
+        .set({
+          "mac_address": macAddress,
+          "id": macAddress,
+          "name": name,
+          "date_registered": FieldValue.serverTimestamp(),
+          "configured": false
+        }, SetOptions(merge: true));
+
+        ///Save device to Shared Preferences
+        await registerDeviceLocally(macAddress, name);
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Device has been successfuly connected"),));
+      
+      Kbeacon.buttonClickEvents.listen((currentMacAddress) async{
+        var sharedPreferences = await SharedPreferences.getInstance();
+        await sharedPreferences.reload();
+
+        // get device index
+        int deviceCount = sharedPreferences.getInt('paired_device_count') ?? 0;
+        int? i;
+        for(int j = 0; j < deviceCount; j++){
+          var jMacAddress = sharedPreferences.getString('paired_device_$j');
+          if(jMacAddress == macAddress)
+            i = j;
+        }
+        if(i != null){
+          /// Get button settings
+          var configured = sharedPreferences.getBool("paired_device_${i}_configured");
+          print(configured);
+          print(sharedPreferences.getString("paired_device_${i}_email"));
+          if(configured != null && configured == true){
+            var onPress = sharedPreferences.getBool("paired_device_${i}_on_press");
+            if(onPress != null && onPress == true){
+              var email = sharedPreferences.getString("paired_device_${i}_email");
+              var emailMessage = sharedPreferences.getString("paired_device_${i}_email_message");
+              var callPhoneNumberPrefix = sharedPreferences.getString("paired_device_${i}_call_phone_number_prefix");
+              var callPhoneNumber = sharedPreferences.getString("paired_device_${i}_call_phone_number");
+              var smsPhoneNumberPrefix = sharedPreferences.getString("paired_device_${i}_sms_phone_number_prefix");
+              var smsPhoneNumber = sharedPreferences.getString("paired_device_${i}_sms_phone_number");
+              var smsMessage = sharedPreferences.getString("paired_device_${i}_sms_message");
+              /// Create document for alert in Firestore 
+              /// Automatically sends EMAIL and SMS
+              var alertDocReference = FirebaseFirestore.instance
+              .collection('users')
+              .doc(Authentication.auth.currentUser!.uid)
+              .collection('devices')
+              .doc(currentMacAddress)
+              .collection('alerts')
+              .doc();
+              await alertDocReference
+              .set({
+                "date_created": FieldValue.serverTimestamp(),
+                "device_id": currentMacAddress,
+                "email": email,
+                "email_message": emailMessage,
+                "call_phone_number": callPhoneNumber,
+                "call_phone_number_prefix": callPhoneNumberPrefix,
+                "sms_phone_number": smsPhoneNumber,
+                "sms_phone_number_prefix": smsPhoneNumberPrefix,
+                "sms_message": smsMessage
+              }, SetOptions(merge: true));
+              /// CALL phone number
+              // try{
+              //   launchUrlString("tel:${callPhoneNumberPrefix}${callPhoneNumber}");
+              // }
+              // catch(err){
+              //   FirebaseFirestore.instance
+              //   .collection('users')
+              //   .doc(Authentication.auth.currentUser!.uid)
+              //   .collection('devices')
+              //   .doc(macAddress)
+              //   .collection('alerts')
+              //   .doc(alertDocReference.id)
+              //   .set({
+              //     "dial_phone_number_error": err.toString()
+              //   }, SetOptions(merge: true));
+              // }
+              //await sendSMS(message: smsMessage ?? "I am in danger", recipients: [smsPhoneNumberPrefix!+smsPhoneNumber!]);
+            }
+          }
+        }
       });
     }
+    
     else {
       /// Device did not connect
       _loading();
       notifyListeners();
       return false;
     }
-
-    ///Save device to Shared Preferences
-    await registerDeviceLocally(macAddress, name);
-    
-    
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Device has been successfuly connected"),));
     
     _loading();
     notifyListeners();
     return true;
+  }
+
+  Future<void> disconnect(String macAddress, BuildContext context) async{
+    _loading();
+
+    await Kbeacon.disconnect(macAddress);
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Device has been successfuly disconnected"),));
+
+    _loading();
+    notifyListeners();
   }
 
   ///Save device to shared preferences
@@ -178,6 +274,33 @@ class DevicesPageProvider with ChangeNotifier{
     this.pairedDevices = List.from(pairedDevices);
 
     notifyListeners();
+  }
+
+  bool checkDeviceAlreadyPaired(String macAddress){
+    return pairedDevices.where((device) => device.macAddress == macAddress).length > 0
+    ? true
+    : false;
+  }
+
+  Future<bool> askLocationPermissions() async{
+    print(await Permission.locationWhenInUse.status);
+    // print(await BackgroundLocation.startLocationService());
+    // Permission.locationWhenInUse
+    return false;
+    var status = await Permission.locationWhenInUse.request();
+    switch (status){
+      case PermissionStatus.denied:
+        return false;
+      case PermissionStatus.granted:
+        return true;
+      case PermissionStatus.restricted:
+        return false;
+      case PermissionStatus.limited:
+        return true;
+      case PermissionStatus.permanentlyDenied:
+        return false;
+      default: return false;
+    }
   }
 
   _loading(){

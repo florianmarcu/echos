@@ -10,7 +10,7 @@ class ConfigureDevicePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var provider = context.watch<ConfigureDevicePageProvider>();
-    //print(provider.currentButtonSettings);
+    print(provider.newButtonSettings);
     return Scaffold(
       resizeToAvoidBottomInset: false,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
@@ -25,8 +25,13 @@ class ConfigureDevicePage extends StatelessWidget {
           onPressed: !provider.haveSettingsChanged
           ? null
           : (){
-            if(provider.formKey.currentState!.validate())
-              provider.saveChanges().then((value) => print("saved"));
+            if(provider.formKey.currentState!.validate()) {
+              provider.saveChanges().then((value) {
+                return ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text("Changes saved successfully!")
+                ));
+              });
+            }
           }, 
           label: Text('Save changes', style: Theme.of(context).textTheme.labelSmall!.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).canvasColor),)
         ),
@@ -151,8 +156,9 @@ class ConfigureDevicePage extends StatelessWidget {
                           ]
                         ),
                         child: TextFormField(
+                          controller: provider.callPhoneNumberTextFieldController,
                           validator: provider.validateCallPhoneNumber,
-                          initialValue: provider.newButtonSettings['call_phone_number'],
+                          //initialValue: provider.newButtonSettings['call_phone_number'],
                           keyboardType: TextInputType.phone,
                           style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.primary),
                           decoration: InputDecoration(
@@ -186,7 +192,7 @@ class ConfigureDevicePage extends StatelessWidget {
                       SizedBox(width: 10),
                       /// country code for sms
                       Container(
-                        width: MediaQuery.of(context).size.width*0.31,
+                        width: MediaQuery.of(context).size.width*0.32,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
@@ -245,8 +251,9 @@ class ConfigureDevicePage extends StatelessWidget {
                           ]
                         ),
                         child: TextFormField(
+                          controller: provider.smsPhoneNumberTextFieldController,
                           validator: provider.validateSmsPhoneNumber,
-                          initialValue: provider.newButtonSettings['sms_phone_number'] ?? "",
+                          //initialValue: provider.newButtonSettings['sms_phone_number'] ?? "",
                           keyboardType: TextInputType.phone,
                           style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.primary),
                           decoration: InputDecoration( 
@@ -317,8 +324,9 @@ class ConfigureDevicePage extends StatelessWidget {
                           ]
                         ),
                         child: TextFormField(
+                          controller: provider.emailTextFieldController,
                           validator: provider.validateEmailAddress,
-                          initialValue: provider.newButtonSettings['email'] ?? "",
+                          //initialValue: provider.newButtonSettings['email'] ?? "",
                           keyboardType: TextInputType.emailAddress,
                           style: Theme.of(context).textTheme.subtitle1!.copyWith(color: Theme.of(context).colorScheme.primary),
                           decoration: InputDecoration( 

@@ -1,5 +1,7 @@
 import 'package:echos/screens/configure_device/configure_device_page.dart';
 import 'package:echos/screens/configure_device/configure_device_provider.dart';
+import 'package:echos/screens/device/device_page.dart';
+import 'package:echos/screens/device/device_provider.dart';
 import 'package:echos/screens/search_device/search_device_page.dart';
 import 'package:echos/screens/wrapper_home/wrapper_home_provider.dart';
 import 'devices_provider.dart';
@@ -47,7 +49,15 @@ class DevicesPage extends StatelessWidget {
     List<Widget> devices = [];
     if(provider.pairedDevices != [])
       devices = provider.pairedDevices.map((device) => GestureDetector(
-        onTap: (){},
+        onTap: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => MultiProvider(
+            providers: [
+              ChangeNotifierProvider(create: (_) => DevicePageProvider(device, context, provider),),
+              ChangeNotifierProvider.value(value: provider),
+            ],
+            child: DevicePage(),
+          )));
+        },
         child: Container(
           padding: const EdgeInsets.only(top: 20.0),
           decoration: BoxDecoration(
