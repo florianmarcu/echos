@@ -3,7 +3,7 @@ import 'package:authentication/authentication.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:echos/models/models.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:kbeacon/kbeacon.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -16,7 +16,7 @@ class DevicesPageProvider with ChangeNotifier{
   List<BluetoothDevice> connectedDevices = [];
   List<Device> pairedDevices = [];
   FlutterReactiveBle bluetooth = FlutterReactiveBle();
-  FlutterBlue flutterBlue = FlutterBlue.instance;
+  FlutterBluePlus flutterBlue = FlutterBluePlus.instance;
   // Stream<DiscoveredDevice>? scannedDevicesStream;
   bool isSearching = false;
   bool isLoading = false;

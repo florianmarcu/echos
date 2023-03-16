@@ -19,7 +19,7 @@ dependencies:
   cloud_firestore:
   provider:  
   local_auth:
-  flutter_blue:
+  flutter_blue_plus:
   country_icons:
   country_codes: 
   country_list:

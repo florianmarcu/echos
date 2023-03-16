@@ -9,7 +9,7 @@ import 'package:echos/screens/search_device/search_device_page.dart';
 import 'package:echos/screens/wrapper_home/wrapper_home_provider.dart';
 import 'package:echos/utils/utils.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomePage extends StatelessWidget {

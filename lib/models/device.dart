@@ -1,5 +1,5 @@
 import 'package:country_list/country_list.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 class Device{
   String macAddress;
